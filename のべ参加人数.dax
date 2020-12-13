@@ -1,0 +1,8 @@
+のべ参加人数 = 
+    CALCULATE(
+        SUM(event_all[参加者数]), 
+        FILTER(
+            'event_all', 
+            'event_all'[done] = 1
+        )
+    )

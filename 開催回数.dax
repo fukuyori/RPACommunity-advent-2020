@@ -1,0 +1,8 @@
+開催回数 = 
+    CALCULATE(
+        COUNT(event_all[event_id]), 
+        FILTER(
+            'event_all', 
+            'event_all'[done] = 1
+        )
+    )

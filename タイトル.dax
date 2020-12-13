@@ -1,0 +1,8 @@
+タイトル = 
+    CONCATENATE(
+        CONCATENATE(
+            [title] ,
+            UNICHAR(10)
+        ),
+        [catch]
+    )
