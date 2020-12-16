@@ -50,9 +50,25 @@ let
                 event101
             }
         ),
-    解析日時１ = 
-        Table.TransformColumns(
+    // タイムゾーン情報を削除し、日本時間で表示するように
+    開始日時追加 = 
+        Table.AddColumn(
             jsonデータを追加,
+            "開始日時", 
+            each DateTimeZone.RemoveZone(DateTimeZone.From([started_at])), 
+            type datetime
+        ),
+    終了日時追加 = 
+        Table.AddColumn(
+            開始日時追加,
+            "終了時間", 
+            each DateTimeZone.RemoveZone(DateTimeZone.From([ended_at])), 
+            type datetime
+        ),
+    // 現在時間と比較を行うために、タイムゾーン付きの時間を取っておく
+    解析開始日時 = 
+        Table.TransformColumns(
+            終了日時追加,
             {
                 {
                     "started_at", 
@@ -61,9 +77,9 @@ let
                 }
             }
         ),
-    解析日時２ = 
+    解析終了日時 = 
         Table.TransformColumns(
-            解析日時１,
+            解析開始日時,
             {
                 {
                     "ended_at", 
@@ -72,19 +88,9 @@ let
                 }
             }
         ),
-    開始日時 = 
-        Table.Sort(
-            解析日時２,
-            {
-                {
-                    "started_at", 
-                    Order.Ascending
-                }
-            }
-        ),
     数値変更 = 
         Table.TransformColumnTypes(
-            開始日時,
+            解析終了日時,
             {
                 {
                     "accepted", 
@@ -101,25 +107,13 @@ let
             数値変更,
             {
                 {
-                    "started_at", 
-                    "開始日時"
-                }, 
-                {
-                    "title", 
-                    "title"
-                }, 
-                {
                     "accepted", 
                     "参加者数"
                 }, 
                 {
                     "place", 
                     "開催会場"
-                }, 
-                {
-                    "ended_at", 
-                    "終了日時"
-                }
+                } 
             }
         )
 in

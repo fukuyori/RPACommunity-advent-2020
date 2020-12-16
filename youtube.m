@@ -72,19 +72,35 @@ let
             {"url"}, 
             {"url"}
         ),
-    発行日の型を日時に変更 = 
-        Table.TransformColumnTypes(
-            #"展開された default",
+    // 登録日をＪＳＴにしてタイムゾーンを削除
+    登録日を追加 =
+        Table.AddColumn(
+            #"展開された default", 
+            "登録日", 
+            each DateTimeZone.RemoveZone(
+                DateTimeZone.SwitchZone(
+                    DateTimeZone.From(
+                        [publishedAt]),
+                        -9
+                    )
+                ),
+                type datetime
+            ), 
+    // UTC時間も残しておく
+    PublishedAtを日時に変換 =
+        Table.TransformColumns(
+            登録日を追加,
             {
                 {
                     "publishedAt", 
+                    each DateTime.From(DateTimeZone.From(_)),
                     type datetime
                 }
             }
         ),
     追加されたプレフィックス = 
         Table.TransformColumns(
-            発行日の型を日時に変更,
+            PublishedAtを日時に変換,
             {
                 {
                     "videoId", 
@@ -97,10 +113,6 @@ let
         Table.RenameColumns(
             追加されたプレフィックス,
             {
-                {
-                    "publishedAt", 
-                    "登録日"
-                }, 
                 {
                     "title", 
                     "タイトル"
